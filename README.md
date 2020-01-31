@@ -1,5 +1,7 @@
 # AWS Elastic Beanstalk
 
+Elastic Beanstalk은 AWS에 어플리케이션을 배포하는 가장 간편하고 빠른 방법으로 Java, .NET, PHP, Node.js, Python, Ruby, Go, Docker를 사용하여 Apache, Nginx, IIS와 같은 서버에서 구동되는 웹서비스들을 지원합니다. 사용자를 대신해서 인프라를 프로비저닝해주고 업데이트 및 패치도 간단하게 적용할수 있습니다. 인프라 운영 오버헤드등을 줄여서 개발에 더 집중할수 있도록 도와주는 PaaS 입니다.
+
 ## 시작하기전에
 
 1. 본 Hands-on lab에서 사용할 Application 예제는 MDN (the Mozilla Developer Network) 에서 만든 [튜토리얼](https://developer.mozilla.org/en-US/docs/Learn/Server-side/Django/Tutorial_local_library_website)의 예제입니다.
