@@ -316,7 +316,7 @@ Elastic Beanstalk은 AWS에 어플리케이션을 배포하는 가장 간편하�
 
 1. AWS Management Console에서 좌측 상단에 있는 **[Services]** 를 선택하고 검색창에서 IAM를 검색하거나 **[Security, Identity, & Compliance]** 바로 밑에 있는 **[IAM]** 를 선택
 
-2. **[Roles]** &rightarrow; *eb-lab-IAMRole-xxxx*를 선택 
+2. **[Roles]** &rightarrow; *eb-lab-IAMRole-xxxx*를 선택
 
 3. **[Add inline policy]** 선택 후, **Service** = Systems Manager, **Actions** = GetParameter, **Resources** = :white_check_mark: Specific &rightarrow; **[Add ARN]**, **Region** = ap-northeast-2, **Fully qualified parameter name** = LOCAL_LIBRARY/DB_PASSWORD &rightarrow; **[Add]**, **[Review policy]** 클릭, **Name** = ssm_get_param, **[Create policy]** 클릭
 
@@ -364,3 +364,76 @@ Elastic Beanstalk은 AWS에 어플리케이션을 배포하는 가장 간편하�
     ```
 
 4. 수정한 코드를 Commit & Push
+
+## APM with X-Ray
+
+1. EB Dashboard에서 **[Configuration]** &rightarrow; Category가 **Software** 인 탭에서  **[Modify]** 클릭 &rightarrow; **X-Ray Daemon** :white_check_mark: Enabled &rightarrow; **[Apply]**
+
+    >Elastic Beanstalk 환경에 기본으로 X-Ray Daemon이 설치됩니다만 위의 옵션설정으로 실행시켜주어야 합니다
+
+2. `requirements.txt`파일을 열고 아래의 라인을 추가 (AWS X-Ray SDK for Python 설치)
+
+    ```python
+    aws-xray-sdk==2.4.3
+    ```
+
+3. `locallibrary/settings.py` 파일을 열고 `INSTALLED_APPS` 블록에 `aws_xray_sdk.ext.django` 추가
+
+    ```python
+    INSTALLED_APPS = [
+        'django.contrib.admin',
+        'django.contrib.auth',
+        'django.contrib.contenttypes',
+        'django.contrib.sessions',
+        'django.contrib.messages',
+        'django.contrib.staticfiles',
+        # Add our new application
+        'catalog.apps.CatalogConfig', #This object was created for us in /catalog/apps.py,
+        'aws_xray_sdk.ext.django',
+    ]
+    ```
+
+4. `locallibrary/settings.py` 에서 `MIDDLEWARE` 블록에 `aws_xray_sdk.ext.django.middleware.XRayMiddleware` 추가
+
+    ```python
+    MIDDLEWARE = [
+        'django.middleware.security.SecurityMiddleware',
+        'whitenoise.middleware.WhiteNoiseMiddleware',
+        'django.contrib.sessions.middleware.SessionMiddleware',
+        'django.middleware.common.CommonMiddleware',
+        'django.middleware.csrf.CsrfViewMiddleware',
+        'django.contrib.auth.middleware.AuthenticationMiddleware',
+        'django.contrib.messages.middleware.MessageMiddleware',
+        'django.middleware.clickjacking.XFrameOptionsMiddleware',
+        'aws_xray_sdk.ext.django.middleware.XRayMiddleware',
+    ]
+    ```
+
+5. `locallibrary/settings.py` 에서 아래의 코드블록을 붙여넣기
+
+    ```python
+    XRAY_RECORDER = {
+        'AWS_XRAY_DAEMON_ADDRESS': '127.0.0.1:2000',
+        'AUTO_INSTRUMENT': True,  # If turned on built-in database queries and template rendering will be recorded as subsegments
+        'AWS_XRAY_CONTEXT_MISSING': 'LOG_ERROR',
+        'PLUGINS': (),
+        'SAMPLING': True,
+        'SAMPLING_RULES': None,
+        'AWS_XRAY_TRACING_NAME': 'locallibrary', # the segment name for segments generated from incoming requests
+        'DYNAMIC_NAMING': None, # defines a pattern that host names should match
+        'STREAMING_THRESHOLD': None, # defines when a segment starts to stream out its children subsegments
+    }
+    ```
+
+6. IAM Dashboard로 이동해서 ***eb-lab-IAMRole-xxxx***에 *AWSXRayWriteOnlyAccess* 정책 연결
+
+7. 수정한 코드를 Commit & Push
+
+8. 웹 어플리케이션에 접속 후 Browising
+
+9. AWS Management Console에서 좌측 상단에 있는 **[Services]** 를 선택하고 검색창에서 X-Ray를 검색하거나 **[Developer Tools]** 밑에 있는 **[X-Ray]** 를 선택
+
+10. X-Ray Dashboard에서 **[Traces]** 선택
+
+    * 각 URL별 응답속도 확인
+    * **Trace list** 에서 *Response Time* 이 가장 긴 Trace를 선택 후 **Raw data** 에서 *subsegments* 확인
