@@ -29,7 +29,7 @@ Elastic Beanstalk은 AWS에 어플리케이션을 배포하는 가장 간편하�
 
 4. **Environment name** = local-library-<YOUR_INITIAL>,\
 **Domain** = local-library-<YOUR_INITIAL>,\
-**Platform** = :radio_button: Preconfigured platform - Python,\
+**Platform** = :radio_button: Python - Amazon Linux 1,\
 **Application code** = :radio_button: Sample application,\
 &rightarrow; **[Configure more options]**
 
@@ -47,7 +47,7 @@ Elastic Beanstalk은 AWS에 어플리케이션을 배포하는 가장 간편하�
 
 1. AWS Management Console에서 좌측 상단에 있는 **[Services]** 를 선택하고 검색창에서 Cloud9를 검색하거나 **[Developer Tools]** 밑에 있는 **[Cloud9]** 를 선택 &rightarrow; **[Open IDE]**
 
-2. 해당 [Git Repository](https://github.com/aws/aws-elastic-beanstalk-cli-setup)를 참고해서 EB CLI 설치
+2. 해당 [링크](https://github.com/aws/aws-elastic-beanstalk-cli-setup)를 참고해서 EB CLI 설치
 
 3. 해당 [Git Repository](https://github.com/mdn/django-locallibrary-tutorial)를 Fork (GitHub 계정 필수)
 
